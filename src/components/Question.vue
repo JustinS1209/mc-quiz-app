@@ -34,18 +34,6 @@
 </template>
 
 <script>
-/* TODOS
-    - Format Questions and Answers to ASCII -> To Remove &quot; and other Characters
-    - Shuffle the Questions so that the last one ist not always correct
-    - Make Filtering by category, type, difficulty (Put in a Vue Component prior to this one and apply settings on this Component)
-    - Refactor CSS and Appearance
-    - Create a Quiz with a specific length
-    - Translator API for translating in diffrent languages
-    - Deploy on GitHub to track changes
-
-    - Deploy Somewhere ( E.g: Netlify)
-*/
-
 export default {
   name: "Question",
 
@@ -157,22 +145,5 @@ li {
 
 li.picked {
   border: 2px solid steelblue;
-}
-
-.btn {
-  cursor: pointer;
-  background-color: #141c2c;
-  border: 2px solid #141c2c;
-  border-radius: 3px;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: inherit;
-  font-weight: bold;
-  font-size: 14px;
-  padding: 10px;
-  margin: 20px 0;
-  width: 100%;
 }
 </style>
