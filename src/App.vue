@@ -2,10 +2,10 @@
   <div id="app">
     <Customization
       v-if="!isCustomized"
-      @api-calls="makeAPICalls"
+      @api-calls="forwardAPICalls"
       @is-customized="setCustomized"
     />
-    <Question v-if="isCustomized" />
+    <Question v-if="isCustomized" :apiCalls="apiCalls" />
   </div>
 </template>
 
@@ -20,15 +20,8 @@ export default {
     Customization,
   },
   methods: {
-    async makeAPICalls(apiCalls) {
-      const calls = Array.from(apiCalls);
-      for (let i = 0; i < calls.length; i++) {
-        const res = await fetch(calls[i]);
-        const data = await res.json();
-        const questions = data.results;
-        this.questions.push(...questions);
-      }
-      console.log(this.questions);
+    forwardAPICalls(apiCalls) {
+      this.apiCalls = apiCalls;
     },
 
     setCustomized(bool) {
@@ -39,7 +32,7 @@ export default {
   data() {
     return {
       isCustomized: false,
-      questions: [],
+      apiCalls: [],
     };
   },
 };

@@ -1,11 +1,11 @@
-<template>
+<template v-if="this.questions.lenght > 0">
   <div class="container">
     <h2>{{ currentQuestion.question }}</h2>
     <ul>
       <li
-        v-for="(answer, index) in currentQuestion.answers"
-        :key="index"
-        @click="selectQuestion(index)"
+        v-for="answer in currentQuestion.answers"
+        :key="answer.index"
+        @click="selectQuestion(answer.index)"
         :class="[answer.isPicked ? 'picked' : '']"
       >
         {{ answer.text }}
@@ -43,12 +43,17 @@ export default {
       let alreadyPickedQuestion = this.currentQuestion.answers.some(
         (answer) => answer.isPicked && answer.index !== index
       );
-
       if (!alreadyPickedQuestion) {
-        this.currentQuestion.answers[index].isPicked = !this.currentQuestion
-          .answers[index].isPicked;
+        this.currentQuestion.answers.forEach((answer) => {
+          if (answer.index === index) {
+            answer.isPicked = !answer.isPicked;
+          }
+        });
+      } else {
+        // Wackelbewegung auf geklicktes Objekt
       }
     },
+
     evaluateAnswer() {
       let questionPicked = this.currentQuestion.answers.filter(
         (answer) => answer.isPicked
@@ -63,44 +68,70 @@ export default {
           this.gotWrongAnswer = true;
         }
       } else {
-        alert("Please pick a Question");
+        alert("Please pick an Answer");
       }
     },
 
     async nextQuestion() {
+      // Reset Current Question
       this.currentQuestion = { question: "", answers: [], correctAnswer: "" };
       this.gotCorrectAnswer = false;
       this.gotWrongAnswer = false;
 
-      const test = await this.fetchQuestion();
+      // Load new Question if there is any.
+      if (this.questions.length > 0) {
+        const nextQuestion = this.questions.pop();
+        this.currentQuestion.question = nextQuestion.question
+          .replaceAll("&quot;", '"')
+          .replaceAll("&#039;", "‘")
+          .replaceAll("&rdquo;", '"')
+          .replaceAll("&rldquo;", '"')
+          .replaceAll("&ouml;", "ö")
+          .replaceAll("&auml;", "ä");
+        this.currentQuestion.correctAnswer = nextQuestion.correct_answer;
+        const answers = nextQuestion.incorrect_answers;
+        answers.push(nextQuestion.correct_answer);
 
-      const randomQuestion = test;
-      this.currentQuestion.question = randomQuestion.question;
+        // Prepare Answer Objects.
+        this.currentQuestion.answers = answers.map((answer, index) => {
+          const obj = {};
+          obj["text"] = answer;
+          obj["index"] = index;
+          obj["isPicked"] = false;
+          return obj;
+        });
 
-      this.currentQuestion.correctAnswer = randomQuestion.correct_answer;
-
-      const answers = randomQuestion.incorrect_answers;
-      answers.push(randomQuestion.correct_answer);
-
-      this.currentQuestion.answers = answers.map((answer, index) => {
-        const obj = {};
-        obj["text"] = answer;
-        obj["index"] = index;
-        obj["isPicked"] = false;
-        return obj;
-      });
+        // Shuffle the Answers
+        this.currentQuestion.answers = this.shuffle(
+          this.currentQuestion.answers
+        );
+      } else {
+        // Do Something when there are no more Questions
+        alert("No more Questions");
+      }
     },
-
-    async fetchQuestion() {
-      const res = await fetch("https://opentdb.com/api.php?amount=1");
-      const data = await res.json();
-      const question = data.results[0];
-
-      return question;
+    shuffle(a) {
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
     },
   },
+  async created() {
+    // Make API Calls and safe to questions array
+    const calls = Array.from(this.apiCalls);
+    for (let i = 0; i < calls.length; i++) {
+      const res = await fetch(calls[i]);
+      const data = await res.json();
+      const questions = data.results;
+      this.questions.push(...questions);
+    }
 
-  created() {
+    // Shuffle the Questions
+    this.questions = this.shuffle(this.questions);
+    console.log(this.questions);
+
     this.nextQuestion();
     // Shuffle damit die Reihenfolge nicht Erkennbar ist
     // Parser der &quot etc. zu den entsprechenden ASCII Zeichen konvertiert
@@ -110,13 +141,17 @@ export default {
     return {
       gotCorrectAnswer: false,
       gotWrongAnswer: false,
-
+      questions: [],
       currentQuestion: {
         question: "",
         answers: [],
         correctAnswer: "",
       },
     };
+  },
+
+  props: {
+    apiCalls: Array,
   },
 };
 </script>
