@@ -71,8 +71,7 @@ export default {
         alert("Please pick an Answer");
       }
     },
-
-    async nextQuestion() {
+    nextQuestion() {
       // Reset Current Question
       this.currentQuestion = { question: "", answers: [], correctAnswer: "" };
       this.gotCorrectAnswer = false;
@@ -81,16 +80,16 @@ export default {
       // Load new Question if there is any.
       if (this.questions.length > 0) {
         const nextQuestion = this.questions.pop();
-        this.currentQuestion.question = nextQuestion.question
-          .replaceAll("&quot;", '"')
-          .replaceAll("&#039;", "‘")
-          .replaceAll("&rdquo;", '"')
-          .replaceAll("&rldquo;", '"')
-          .replaceAll("&ouml;", "ö")
-          .replaceAll("&auml;", "ä");
+        this.currentQuestion.question = nextQuestion.question;
+
+        // Clean ASCII  Characters
+        this.currentQuestion.question = this.replaceHTMLEncoding(
+          this.currentQuestion.question
+        );
         this.currentQuestion.correctAnswer = nextQuestion.correct_answer;
-        const answers = nextQuestion.incorrect_answers;
+        let answers = nextQuestion.incorrect_answers;
         answers.push(nextQuestion.correct_answer);
+        answers.forEach((answer) => this.replaceHTMLEncoding(answer));
 
         // Prepare Answer Objects.
         this.currentQuestion.answers = answers.map((answer, index) => {
@@ -110,6 +109,19 @@ export default {
         alert("No more Questions");
       }
     },
+    replaceHTMLEncoding(string) {
+      string = string
+        .replaceAll("&quot;", '"')
+        .replaceAll("&#039;", "‘")
+        .replaceAll("&rdquo;", '"')
+        .replaceAll("&rldquo;", '"')
+        .replaceAll("&ouml;", "ö")
+        .replaceAll("&auml;", "ä")
+        .replaceAll("&deg;,", "°");
+
+      return string;
+    },
+
     shuffle(a) {
       for (let i = a.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -118,7 +130,7 @@ export default {
       return a;
     },
   },
-  async created() {
+  async mounted() {
     // Make API Calls and safe to questions array
     const calls = Array.from(this.apiCalls);
     for (let i = 0; i < calls.length; i++) {
