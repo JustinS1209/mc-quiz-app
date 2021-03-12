@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <h1>Which Categories would you like to include?</h1>
+  <div class="container">
+    <h2>Choose some Categories</h2>
     <form action="#">
       <input
         type="checkbox"
@@ -27,7 +27,7 @@
       <label for="mythology">Mythology</label>
       <br />
     </form>
-    <h1>Which difficulty would you like to include?</h1>
+    <h2>How difficult should the Quiz be?</h2>
     <form action="#">
       <input type="radio" id="easy" v-model="difficulty" value="easy" />
       <label for="easy">Easy</label>
@@ -39,15 +39,17 @@
       <label for="hard">Hard</label>
       <br />
     </form>
-    <h1>How many Questions would you like to have? (10-50)</h1>
+    <h2>How many Questions would you like to have? (10-50)</h2>
     <!-- Implement Amount -->
-    <button class="btn" @click.prevent="generateAPICalls">Submit</button>
+    <b-button pill block variant="primary" @click.prevent="generateAPICalls">
+      Submit
+    </b-button>
   </div>
 </template>
 
 <script>
 export default {
-  name: "Customization.vue",
+  name: "Home.vue",
 
   data() {
     return {
@@ -58,13 +60,17 @@ export default {
   },
   methods: {
     generateAPICalls() {
-      this.checkedCategories.forEach((category) => {
-        const apiCall = `https://opentdb.com/api.php?amount=10&category=${category.id}&difficulty=${this.difficulty}`;
-        this.apiCalls.push(apiCall);
-      });
+      if (this.checkedCategories.length > 0 && this.difficulty) {
+        this.checkedCategories.forEach((category) => {
+          const apiCall = `https://opentdb.com/api.php?amount=10&category=${category.id}&difficulty=${this.difficulty}`;
+          this.apiCalls.push(apiCall);
+        });
 
-      this.$emit("api-calls", this.apiCalls);
-      this.$emit("is-customized", true);
+        this.$emit("api-calls", this.apiCalls);
+        this.$emit("is-customized", true);
+      } else {
+        alert("Please choose at least one Category and a Difficulty");
+      }
     },
   },
 };

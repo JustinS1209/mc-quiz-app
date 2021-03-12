@@ -18,14 +18,14 @@
     </div>
     <button
       v-show="!gotCorrectAnswer && !gotWrongAnswer"
-      class="btn"
+      class=""
       @click="evaluateAnswer"
     >
       Submit
     </button>
     <button
       v-if="gotWrongAnswer || gotCorrectAnswer"
-      class="btn"
+      class=""
       @click="nextQuestion"
     >
       Next Question
