@@ -1,50 +1,66 @@
 <template>
-  <div class="container">
-    <h2>Choose some Categories</h2>
-    <form action="#">
-      <input
-        type="checkbox"
-        id="general_knowledge"
-        :value="{ name: 'general_knowledge', id: 9 }"
-        v-model="checkedCategories"
-      />
-      <label for="general_knowledge">General Knowledge</label>
-      <br />
-      <input
-        type="checkbox"
-        id="science_and_nature"
-        :value="{ name: 'science_and_nature', id: 17 }"
-        v-model="checkedCategories"
-      />
-      <label for="science_and_nature">Science & Nature</label>
-      <br />
-      <input
-        type="checkbox"
-        id="mythology"
-        :value="{ name: 'mythology', id: 20 }"
-        v-model="checkedCategories"
-      />
-      <label for="mythology">Mythology</label>
-      <br />
-    </form>
-    <h2>How difficult should the Quiz be?</h2>
-    <form action="#">
-      <input type="radio" id="easy" v-model="difficulty" value="easy" />
-      <label for="easy">Easy</label>
-      <br />
-      <input type="radio" id="medium" v-model="difficulty" value="medium" />
-      <label for="medium">Medium</label>
-      <br />
-      <input type="radio" id="hard" v-model="difficulty" value="hard" />
-      <label for="hard">Hard</label>
-      <br />
-    </form>
-    <h2>How many Questions would you like to have? (10-50)</h2>
+  <b-container>
+    <div style="margin-top: 25vh"></div>
+    <b-form-checkbox-group
+      id="checkbox-group-1"
+      v-model="checkedCategories"
+      name="Categories"
+    >
+      <b-row>
+        <b-col>
+          <b-card
+            img-src="https://store-images.s-microsoft.com/image/apps.61688.13681578430655207.a59a05e2-81fc-4b9b-870f-931088be9ad8.f1b4cdf8-0e3d-47ac-b295-7e56a5cf90c7?mode=scale&q=90&h=200&w=200&background=%230078D7"
+          >
+            <b-form-checkbox :value="{ name: 'general_knowledge', id: 9 }"
+              >General Knowledge</b-form-checkbox
+            >
+          </b-card>
+        </b-col>
+        <b-col>
+          <b-card
+            img-src="https://previews.123rf.com/images/batsheba/batsheba1606/batsheba160600006/58458583-open-book-with-science-and-nature-study-symbols-education-concept-illustration.jpg"
+          >
+            <b-form-checkbox :value="{ name: 'science_and_nature', id: 17 }"
+              >Science and Nature</b-form-checkbox
+            >
+          </b-card>
+        </b-col>
+        <b-col>
+          <b-card
+            img-src="https://mythopedia.com/assets/images/greek-mythology--social.jpg"
+          >
+            <b-form-checkbox :value="{ name: 'mythology', id: 20 }"
+              >Mythology</b-form-checkbox
+            >
+          </b-card>
+        </b-col>
+      </b-row>
+      <b-form-invalid-feedback :state="state" style="font-size: 1rem"
+        >Please select at least one Category</b-form-invalid-feedback
+      >
+    </b-form-checkbox-group>
+
+    <b-form-group label="How difficult should the Quiz be?">
+      <b-form-radio-group
+        id="radio-group-difficulty"
+        v-model="difficulty"
+        :options="difficulties"
+        name="radio-difficulties"
+        stacked
+      ></b-form-radio-group>
+    </b-form-group>
+
     <!-- Implement Amount -->
-    <b-button pill block variant="primary" @click.prevent="generateAPICalls">
+    <b-button
+      pill
+      block
+      pressed
+      variant="success"
+      @click.prevent="generateAPICalls"
+    >
       Submit
     </b-button>
-  </div>
+  </b-container>
 </template>
 
 <script>
@@ -54,9 +70,19 @@ export default {
   data() {
     return {
       checkedCategories: [],
-      difficulty: "",
+      difficulty: "easy",
       apiCalls: [],
+      difficulties: [
+        { text: "Easy", value: "easy" },
+        { text: "Medium", value: "medium" },
+        { text: "Hard", value: "hard" },
+      ],
     };
+  },
+  computed: {
+    state() {
+      return this.checkedCategories.length > 0;
+    },
   },
   methods: {
     generateAPICalls() {
@@ -75,3 +101,5 @@ export default {
   },
 };
 </script>
+<style scoped>
+</style>

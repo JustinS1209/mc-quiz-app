@@ -1,36 +1,51 @@
 <template v-if="this.questions.lenght > 0">
-  <div class="container">
-    <h2>{{ currentQuestion.question }}</h2>
-    <ul>
-      <li
-        v-for="answer in currentQuestion.answers"
-        :key="answer.index"
-        @click="selectQuestion(answer.index)"
-        :class="[answer.isPicked ? 'picked' : '']"
+  <b-container>
+    <div style="margin-top: 25vh"></div>
+    <b-card>
+      <h2>{{ currentQuestion.question }}</h2>
+      <b-list-group>
+        <!-- Maybe Refactor Styled Radiobuttons -->
+        <b-list-group-item
+          v-for="answer in currentQuestion.answers"
+          :key="answer.index"
+          @click="selectAnswer(answer.index)"
+          :class="[answer.isPicked ? 'picked' : '']"
+          style="
+            margin-top: 5px;
+            margin-bottom: 10px;
+            border: 1px solid gray;
+            border-radius: 10px;
+          "
+        >
+          {{ answer.text }}
+        </b-list-group-item>
+      </b-list-group>
+      <h2 v-if="gotCorrectAnswer">Correct Answer</h2>
+      <div v-if="gotWrongAnswer">
+        <h2>Wrong Answer!</h2>
+        <h3>Correct Answer: {{ currentQuestion.correctAnswer }}</h3>
+      </div>
+      <b-button
+        v-show="!gotCorrectAnswer && !gotWrongAnswer"
+        @click="evaluateAnswer"
+        pill
+        block
+        pressed
+        variant="info"
       >
-        {{ answer.text }}
-      </li>
-    </ul>
-    <h2 v-if="gotCorrectAnswer">Correct Answer</h2>
-    <div v-if="gotWrongAnswer">
-      <h2>Wrong Answer!</h2>
-      <h3>Correct Answer: {{ currentQuestion.correctAnswer }}</h3>
-    </div>
-    <button
-      v-show="!gotCorrectAnswer && !gotWrongAnswer"
-      class=""
-      @click="evaluateAnswer"
-    >
-      Submit
-    </button>
-    <button
-      v-if="gotWrongAnswer || gotCorrectAnswer"
-      class=""
-      @click="nextQuestion"
-    >
-      Next Question
-    </button>
-  </div>
+        Submit
+      </b-button>
+      <b-button
+        v-if="gotWrongAnswer || gotCorrectAnswer"
+        pill
+        block
+        pressed
+        @click="nextQuestion"
+      >
+        Next Question
+      </b-button>
+    </b-card>
+  </b-container>
 </template>
 
 <script>
@@ -39,7 +54,8 @@ export default {
 
   methods: {
     // Make sure only one Question can be clicked
-    selectQuestion(index) {
+    selectAnswer(index) {
+      console.log(index);
       let alreadyPickedQuestion = this.currentQuestion.answers.some(
         (answer) => answer.isPicked && answer.index !== index
       );
@@ -169,28 +185,16 @@ export default {
 </script>
 
 <style scoped>
+h2 {
+  text-align: center;
+}
 .container {
   display: inline-block;
   width: 400px;
   max-width: 100%;
 }
 
-ul {
-  justify-content: center;
-  list-style: none;
-  margin-top: 100px;
-}
-
-li {
-  padding: 10px;
-  font-weight: 900;
-  font-size: 1.5rem;
-  border: 1px solid #565656;
-  margin-top: 15px;
-  text-align: center;
-}
-
-li.picked {
+.picked {
   border: 2px solid steelblue;
 }
 </style>
