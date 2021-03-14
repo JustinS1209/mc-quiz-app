@@ -1,25 +1,23 @@
-<template v-if="this.questions.lenght > 0">
-  <b-container>
+<template>
+  <b-container style="width: 100%">
     <div style="margin-top: 25vh"></div>
-    <b-card>
+    <b-card style="max-width: 900px; margin: 0 auto; float: none">
       <h2>{{ currentQuestion.question }}</h2>
-      <b-list-group>
-        <!-- Maybe Refactor Styled Radiobuttons -->
+      <b-list-group flush>
         <b-list-group-item
           v-for="answer in currentQuestion.answers"
           :key="answer.index"
           @click="selectAnswer(answer.index)"
           :class="[answer.isPicked ? 'picked' : '']"
-          style="
-            margin-top: 5px;
-            margin-bottom: 10px;
-            border: 1px solid gray;
-            border-radius: 10px;
-          "
+          style="text-align: center"
         >
-          {{ answer.text }}
+          <div class="answer-item">
+            {{ answer.text }}
+          </div>
         </b-list-group-item>
       </b-list-group>
+      <div style="margin-bottom: 20px"></div>
+
       <h2 v-if="gotCorrectAnswer">Correct Answer</h2>
       <div v-if="gotWrongAnswer">
         <h2>Wrong Answer!</h2>
@@ -49,13 +47,13 @@
 </template>
 
 <script>
+import { mapGetters } from "vuex";
+
 export default {
   name: "Question",
-
   methods: {
     // Make sure only one Question can be clicked
     selectAnswer(index) {
-      console.log(index);
       let alreadyPickedQuestion = this.currentQuestion.answers.some(
         (answer) => answer.isPicked && answer.index !== index
       );
@@ -87,6 +85,7 @@ export default {
         alert("Please pick an Answer");
       }
     },
+
     nextQuestion() {
       // Reset Current Question
       this.currentQuestion = { question: "", answers: [], correctAnswer: "" };
@@ -146,23 +145,20 @@ export default {
       return a;
     },
   },
-  async mounted() {
-    // Make API Calls and safe to questions array
-    const calls = Array.from(this.apiCalls);
+
+  async beforeMount() {
+    const calls = this.allAPICalls;
+    console.log(calls);
     for (let i = 0; i < calls.length; i++) {
       const res = await fetch(calls[i]);
       const data = await res.json();
       const questions = data.results;
       this.questions.push(...questions);
     }
-
-    // Shuffle the Questions
-    this.questions = this.shuffle(this.questions);
-    console.log(this.questions);
-
     this.nextQuestion();
-    // Shuffle damit die Reihenfolge nicht Erkennbar ist
-    // Parser der &quot etc. zu den entsprechenden ASCII Zeichen konvertiert
+  },
+  computed: {
+    ...mapGetters(["allAPICalls"]),
   },
 
   data() {
@@ -177,10 +173,6 @@ export default {
       },
     };
   },
-
-  props: {
-    apiCalls: Array,
-  },
 };
 </script>
 
@@ -194,7 +186,13 @@ h2 {
   max-width: 100%;
 }
 
+.answer-item {
+  margin: 5px 0px 5px 0px;
+  padding: 10px;
+  border: 2px solid gray;
+}
+
 .picked {
-  border: 2px solid steelblue;
+  background-color: steelblue;
 }
 </style>
