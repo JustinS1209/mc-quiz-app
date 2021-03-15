@@ -47,7 +47,7 @@
 </template>
 
 <script>
-import { mapGetters } from "vuex";
+import { mapGetters, mapActions } from "vuex";
 
 export default {
   name: "Question",
@@ -93,72 +93,26 @@ export default {
       this.gotWrongAnswer = false;
 
       // Load new Question if there is any.
-      if (this.questions.length > 0) {
-        const nextQuestion = this.questions.pop();
-        this.currentQuestion.question = nextQuestion.question;
-
-        // Clean ASCII  Characters
-        this.currentQuestion.question = this.replaceHTMLEncoding(
-          this.currentQuestion.question
-        );
-        this.currentQuestion.correctAnswer = nextQuestion.correct_answer;
-        let answers = nextQuestion.incorrect_answers;
-        answers.push(nextQuestion.correct_answer);
-        answers.forEach((answer) => this.replaceHTMLEncoding(answer));
-
-        // Prepare Answer Objects.
-        this.currentQuestion.answers = answers.map((answer, index) => {
-          const obj = {};
-          obj["text"] = answer;
-          obj["index"] = index;
-          obj["isPicked"] = false;
-          return obj;
-        });
-
-        // Shuffle the Answers
-        this.currentQuestion.answers = this.shuffle(
-          this.currentQuestion.answers
-        );
+      if (this.questionsLength > 0) {
+        // Get from Vuex
+        const nextQuestion = this.getLastQuestion;
+        this.popQuestion();
+        this.currentQuestion = Object.assign(nextQuestion);
       } else {
         // Do Something when there are no more Questions
-        alert("No more Questions");
+        alert("No more Questions - Moving Back to Home");
+        this.$router.push("/");
       }
     },
-    replaceHTMLEncoding(string) {
-      string = string
-        .replaceAll("&quot;", '"')
-        .replaceAll("&#039;", "‘")
-        .replaceAll("&rdquo;", '"')
-        .replaceAll("&rldquo;", '"')
-        .replaceAll("&ouml;", "ö")
-        .replaceAll("&auml;", "ä")
-        .replaceAll("&deg;,", "°");
-
-      return string;
-    },
-
-    shuffle(a) {
-      for (let i = a.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [a[i], a[j]] = [a[j], a[i]];
-      }
-      return a;
-    },
+    ...mapActions(["popQuestion"]),
   },
 
-  async beforeMount() {
-    const calls = this.allAPICalls;
-    console.log(calls);
-    for (let i = 0; i < calls.length; i++) {
-      const res = await fetch(calls[i]);
-      const data = await res.json();
-      const questions = data.results;
-      this.questions.push(...questions);
-    }
+  beforeMount() {
     this.nextQuestion();
   },
+
   computed: {
-    ...mapGetters(["allAPICalls"]),
+    ...mapGetters(["allAPICalls", "questionsLength", "getLastQuestion"]),
   },
 
   data() {

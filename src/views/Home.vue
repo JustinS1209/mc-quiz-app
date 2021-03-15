@@ -64,13 +64,12 @@
       variant="success"
       @click.prevent="generateAPICalls"
     >
-      Submit
+      Quiz Me!
     </b-button>
   </b-container>
 </template>
 
 <script>
-// Necessary for Vuex to Work
 import { mapActions } from "vuex";
 
 export default {
@@ -80,7 +79,6 @@ export default {
     return {
       checkedCategories: [],
       difficulty: "easy",
-      //apiCalls: [],
       difficulties: [
         { text: "Easy", value: "easy" },
         { text: "Medium", value: "medium" },
@@ -95,21 +93,23 @@ export default {
   },
 
   methods: {
-    ...mapActions(["createAPICall"]),
+    // Vuex
+    ...mapActions(["generateAPICall"]),
 
+    // Calls
     generateAPICalls() {
       if (this.checkedCategories.length > 0 && this.difficulty) {
         this.checkedCategories.forEach((category) => {
           const apiCall = `https://opentdb.com/api.php?amount=10&category=${category.id}&difficulty=${this.difficulty}`;
-          this.createAPICall(apiCall);
-          console.log(apiCall);
+          this.generateAPICall(apiCall);
         });
       } else {
         alert("Please choose at least one Category and a Difficulty");
       }
-      // Simuliert einen click auf einen <router-link to="/questions">
-      this.$router.push("/question");
+      // Simuliert einen click auf einen <router-link to="/questions"> -> Move to questions
+      this.$router.push("/questions");
     },
+    // Helpers
     markCategory(category) {
       if (!this.checkedCategories.some((cat) => category.id === cat.id)) {
         this.checkedCategories.push(category);
